@@ -1,0 +1,18 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "asset-management-portal-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/assetManagementPortal/AssetManagementPortalWebPart.js",
+          "manifest": "./src/webparts/assetManagementPortal/AssetManagementPortalWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "AssetManagementPortalWebPartStrings": "lib/webparts/assetManagementPortal/loc/{locale}.js"
+  }
+}
