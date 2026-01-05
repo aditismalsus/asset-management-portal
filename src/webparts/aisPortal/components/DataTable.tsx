@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { useState, useMemo, useEffect } from 'react';
-import { ColumnDef } from '../../assetManagementPortal/types';
+
+import React, { useState, useMemo, useEffect } from 'react';
+import { ColumnDef } from '../types';
 import { Search, ArrowUpDown, Settings } from 'lucide-react';
 import SmartTableSettings, { SmartTableColumnConfig, SmartTableViewSettings } from './SmartTableSettings';
 
@@ -124,24 +124,30 @@ const DataTable = <T extends { id: any }>({ columns, data, addButton }: DataTabl
   };
 
   return (
-    <div className={`card border shadow-sm ${viewSettings.tableHeight === 'Fixed' ? 'h-100' : ''}`} style={viewSettings.tableHeight === 'Fixed' ? { maxHeight: '600px' } : {}}>
+    <div className={`card border shadow-sm d-flex flex-column ${viewSettings.tableHeight === 'Fixed' ? 'h-100' : ''}`} style={{ height: viewSettings.tableHeight === 'Fixed' ? '600px' : 'auto' }}>
       {/* Header Controls */}
       {viewSettings.showHeader && (
-        <div className="card-header bg-light py-2 d-flex align-items-center justify-content-between">
+        <div className="card-header bg-light border-bottom p-2 d-flex align-items-center justify-content-between">
           <div className="d-flex align-items-center gap-3">
-            <span className="small text-muted">Showing {filteredAndSortedData.length} of {data.length}</span>
+            <span className="small text-secondary ps-2">Showing {filteredAndSortedData.length} of {data.length}</span>
 
             {viewSettings.showAdvancedSearch && (
               <>
-                <div className="input-group input-group-sm" style={{ width: '200px' }}>
-                  <span className="input-group-text bg-white border-end-0"><Search size={14} className="text-muted" /></span>
+                <div className="position-relative">
+                  <Search className="position-absolute top-50 translate-middle-y text-secondary" style={{ left: '0.5rem', width: '1rem', height: '1rem' }} />
                   <input
                     type="text"
                     placeholder="Search all..."
                     value={globalFilter}
                     onChange={e => setGlobalFilter(e.target.value)}
-                    className="form-control border-start-0"
+                    className="form-control form-control-sm ps-4"
+                    style={{ width: '200px', paddingLeft: '1.75rem' }}
                   />
+                </div>
+                <div className="position-relative">
+                  <select className="form-select form-select-sm" style={{ width: '140px' }}>
+                    <option>All Words</option>
+                  </select>
                 </div>
               </>
             )}
@@ -150,17 +156,17 @@ const DataTable = <T extends { id: any }>({ columns, data, addButton }: DataTabl
             {addButton}
             <button
               onClick={() => setIsSettingsOpen(true)}
-              className="btn btn-sm btn-light border text-muted"
+              className="btn btn-sm btn-light text-secondary"
               title="Table Settings"
             >
-              <Settings size={16} />
+              <Settings size={18} />
             </button>
           </div>
         </div>
       )}
 
       {!viewSettings.showHeader && (
-        <div className="position-absolute top-0 end-0 m-2 z-1">
+        <div className="position-absolute top-0 end-0 p-2 z-3">
           <button
             onClick={() => setIsSettingsOpen(true)}
             className="btn btn-sm btn-light border shadow-sm"
@@ -172,15 +178,15 @@ const DataTable = <T extends { id: any }>({ columns, data, addButton }: DataTabl
       )}
 
       {/* Main Table */}
-      <div className={`table-responsive ${viewSettings.tableHeight === 'Fixed' ? 'flex-grow-1 overflow-auto' : ''}`}>
-        <table className="table table-hover table-striped border-top-0 mb-0">
-          <thead className="table-light sticky-top">
+      <div className={`table-responsive ${viewSettings.tableHeight === 'Fixed' ? 'flex-fill overflow-y-auto' : ''}`}>
+        <table className="table table-hover table-bordered mb-0 align-middle">
+          <thead className="table-light sticky-top shadow-sm z-1">
             <tr>
               {activeColumns.map(column => (
                 <th
                   key={column.accessorKey as string}
-                  style={{ width: column.width ? `${column.width}px` : 'auto', minWidth: column.width ? `${column.width}px` : 'auto' }}
-                  className="align-middle py-2"
+                  style={{ width: column.width ? `${column.width}px` : 'auto' }}
+                  className="text-start bg-light"
                 >
                   {viewSettings.showColumnFilter ? (
                     <div className="position-relative d-flex align-items-center">
@@ -189,20 +195,19 @@ const DataTable = <T extends { id: any }>({ columns, data, addButton }: DataTabl
                         placeholder={column.header}
                         value={columnFilters[column.accessorKey as string] || ''}
                         onChange={e => handleColumnFilterChange(column.accessorKey as string, e.target.value)}
-                        className="form-control form-control-sm"
-                        style={{ paddingRight: '24px' }}
+                        className="form-control form-control-sm border-0 bg-transparent shadow-none p-0 fw-bold text-secondary"
                       />
-                      <button onClick={() => handleSort(column.accessorKey as string)} className="position-absolute end-0 btn btn-link text-muted p-1 text-decoration-none">
-                        <ArrowUpDown size={12} />
+                      <button onClick={() => handleSort(column.accessorKey as string)} className="btn btn-sm btn-link text-secondary p-0 ms-auto">
+                        <ArrowUpDown size={14} />
                       </button>
                     </div>
                   ) : (
                     <div
-                      className="d-flex align-items-center justify-content-between cursor-pointer small fw-bold text-uppercase text-muted"
+                      className="d-flex align-items-center justify-content-between cursor-pointer small fw-bold text-secondary text-uppercase"
                       onClick={() => handleSort(column.accessorKey as string)}
                     >
                       {column.header}
-                      <ArrowUpDown size={14} className="text-muted" />
+                      <ArrowUpDown size={14} className="text-secondary opacity-50" />
                     </div>
                   )}
                 </th>
@@ -216,9 +221,9 @@ const DataTable = <T extends { id: any }>({ columns, data, addButton }: DataTabl
                   <td
                     key={`${row.id}-${column.accessorKey as string}`}
                     style={{ width: column.width ? `${column.width}px` : 'auto' }}
-                    className="align-middle text-nowrap"
+                    className="px-2 py-2"
                   >
-                    <div className="text-truncate" style={{ maxWidth: column.width ? `${column.width}px` : '200px' }}>
+                    <div className="text-truncate" style={{ maxWidth: column.width ? `${column.width - 16}px` : '200px' }}>
                       {column.cell
                         ? column.cell({ row: { original: row } })
                         : String(getNestedValue(row, column.accessorKey as string) ?? '')}

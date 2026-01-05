@@ -1,8 +1,8 @@
 {
   "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
   "solution": {
-    "name": "team-management-portal-v-3-client-side-solution",
-    "id": "d729057d-b076-4b0d-94b9-9c9daef5edcf",
+    "name": "asset-management-portal-v-3-client-side-solution",
+    "id": "f5e4d3c2-b1a0-4e9d-8c7b-6a5f4e3d2c1c",
     "version": "1.0.0.0",
     "includeClientSideAssets": true,
     "skipFeatureDeployment": true,
@@ -12,29 +12,29 @@
       "websiteUrl": "",
       "privacyUrl": "",
       "termsOfUseUrl": "",
-      "mpnId": "Undefined-1.21.1"
+      "mpnId": "Undefined-1.22.1"
     },
     "metadata": {
       "shortDescription": {
-        "default": "team-management-portal-v3 description"
+        "default": "asset-management-portal-v-3 description"
       },
       "longDescription": {
-        "default": "team-management-portal-v3 description"
+        "default": "asset-management-portal-v-3 description"
       },
-      "screenshotPaths": [],
+      "screenshotUrls": [],
       "videoUrl": "",
       "categories": []
     },
     "features": [
       {
-        "title": "team-management-portal-v-3 Feature",
-        "description": "The feature that activates elements of the team-management-portal-v-3 solution.",
-        "id": "c182622f-d1db-49b7-bcf6-6d15db1613db",
+        "title": "asset-management-portal-v-3 Feature",
+        "description": "The feature that activates elements of the asset-management-portal-v-3 solution.",
+        "id": "e4d3c2b1-a0b1-4c2d-8e3f-4a5b6c7d8e9f",
         "version": "1.0.0.0"
       }
     ]
   },
   "paths": {
-    "zippedPackage": "solution/team-management-portal-v-3.sppkg"
+    "zippedPackage": "solution/asset-management-portal-v-3.sppkg"
   }
 }

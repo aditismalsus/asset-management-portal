@@ -1,6 +1,6 @@
-import * as React from 'react';
-import { useState, useEffect } from 'react';
-import { Config, ModalConfig, ModalLayout, SectionDefinition, TabDefinition } from '../../assetManagementPortal/types';
+
+import React, { useState, useEffect } from 'react';
+import { Config, ModalConfig, ModalLayout, SectionDefinition, TabDefinition } from '../types';
 import { Plus, X, ArrowUp, ArrowDown, Trash2, GripVertical, Check, LayoutGrid, Columns } from 'lucide-react';
 
 interface ModalSettingsEditorProps {
@@ -21,8 +21,8 @@ const CONTEXT_OPTIONS: { key: ModalContextKey; label: string }[] = [
 const AVAILABLE_FIELDS: Record<ModalContextKey, string[]> = {
     licenseFamily: ['name', 'productCode', 'vendor', 'category', 'description', 'variants', 'assignmentModel'],
     hardwareFamily: ['name', 'productCode', 'modelNumber', 'manufacturer', 'category', 'description', 'assignmentModel'],
-    licenseInstance: ['title', 'assetId', 'status', 'variantType', 'licenseKey', 'email', 'assignedUsers', 'assignedUser', 'activeUsers', 'purchaseDate', 'renewalDate', 'complianceStatus', 'cost', 'currencyTool', 'assignmentHistory'],
-    hardwareInstance: ['title', 'assetId', 'status', 'serialNumber', 'macAddress', 'location', 'condition', 'assignedUser', 'assignedUsers', 'activeUsers', 'purchaseDate', 'warrantyExpiryDate', 'cost', 'currencyTool', 'assignmentHistory'],
+    licenseInstance: ['title', 'assetId', 'status', 'variantType', 'licenseKey', 'email', 'assignedUsers', 'assignedUser', 'activeUsers', 'purchaseDate', 'expiryDate', 'complianceStatus', 'cost', 'currencyTool', 'assignmentHistory'],
+    hardwareInstance: ['title', 'assetId', 'status', 'serialNumber', 'macAddress', 'location', 'condition', 'assignedUser', 'assignedUsers', 'activeUsers', 'purchaseDate', 'expiryDate', 'cost', 'currencyTool', 'assignmentHistory'],
     userProfile: ['firstName', 'lastName', 'suffix', 'jobTitle', 'department', 'site', 'typeOfContact', 'linkedin', 'twitter', 'facebook', 'instagram', 'businessPhone', 'mobileNo', 'email', 'nonPersonalEmail', 'homePhone', 'skype', 'address', 'city', 'notes', 'avatarUpload']
 };
 
@@ -202,143 +202,154 @@ const ModalSettingsEditor: React.FC<ModalSettingsEditorProps> = ({ config, onUpd
     const availableFields = AVAILABLE_FIELDS[selectedContext].filter(f => !assignedFields.has(f));
 
     return (
-        <div className="d-flex flex-column bg-light rounded border h-100 overflow-hidden">
+        <div className="h-100 d-flex flex-column bg-light rounded overflow-hidden border">
             {/* Header */}
             <div className="p-3 bg-white border-bottom d-flex justify-content-between align-items-center">
                 <div className="d-flex align-items-center gap-3">
-                    <label className="fw-bold text-dark small">Select Modal Context:</label>
+                    <label className="small fw-bold text-secondary text-nowrap">Select Modal Context:</label>
                     <select
                         value={selectedContext}
                         onChange={(e) => setSelectedContext(e.target.value as ModalContextKey)}
-                        className="form-select form-select-sm w-auto"
+                        className="form-select form-select-sm"
+                        style={{ width: 'auto' }}
                     >
                         {CONTEXT_OPTIONS.map(opt => <option key={opt.key} value={opt.key}>{opt.label}</option>)}
                     </select>
                 </div>
-                <button onClick={handleSave} className="btn btn-sm btn-primary d-flex align-items-center gap-2">
+                <button onClick={handleSave} className="btn btn-primary btn-sm d-flex align-items-center gap-2 fw-semibold shadow-sm">
                     <Check size={16} /> Save Layout
                 </button>
             </div>
 
-            <div className="d-flex flex-grow-1 overflow-hidden">
+            <div className="flex-grow-1 d-flex overflow-hidden">
                 {/* Available Fields Sidebar */}
                 <div className="bg-white border-end d-flex flex-column" style={{ width: '250px' }}>
                     <div className="p-3 border-bottom bg-light">
-                        <h6 className="fw-bold text-secondary text-uppercase small mb-0">Available Fields</h6>
+                        <h4 className="small fw-bold text-secondary text-uppercase mb-0 tracking-wider">Available Fields</h4>
                     </div>
-                    <div className="overflow-auto p-2 d-grid gap-2 flex-grow-1">
+                    <div className="overflow-y-auto p-2 d-flex flex-column gap-2 flex-grow-1">
                         {availableFields.map(field => (
                             <div
                                 key={field}
                                 draggable
                                 onDragStart={(e) => handleDragStart(e, field, null)}
                                 onDragEnd={handleDragEnd}
-                                className="d-flex align-items-center gap-2 p-2 bg-white border rounded shadow-sm cursor-move hover-border-primary"
+                                className="d-flex align-items-center gap-2 p-2 bg-white border rounded shadow-sm cursor-grab border-hover-primary"
+                                style={{ cursor: 'grab' }}
                             >
-                                <GripVertical size={14} className="text-secondary" />
-                                <span className="small text-muted fw-medium">{field}</span>
+                                <GripVertical size={14} className="text-muted" />
+                                <span className="small text-dark font-monospace text-truncate">{field}</span>
                             </div>
                         ))}
-                        {availableFields.length === 0 && <div className="text-muted small text-center py-4">All fields used</div>}
+                        {availableFields.length === 0 && <p className="text-center small text-muted mt-3">All fields assigned</p>}
                     </div>
                 </div>
 
-                {/* Main Layout Area */}
-                <div className="flex-grow-1 d-flex flex-column overflow-hidden">
-                    {/* Tabs Bar */}
-                    <div className="d-flex align-items-center bg-white border-bottom px-2 pt-2 gap-1 overflow-x-auto">
-                        {currentLayout.tabs.map(tab => (
-                            <div
-                                key={tab.id}
-                                onClick={() => setActiveTabId(tab.id)}
-                                className={`d-flex align-items-center gap-2 px-3 py-2 border-top border-end border-start rounded-top cursor-pointer ${activeTabId === tab.id ? 'bg-light fw-bold text-primary' : 'bg-white text-muted hover-bg-light'}`}
-                                style={{ marginBottom: '-1px', position: 'relative', zIndex: activeTabId === tab.id ? 1 : 0 }}
-                            >
-                                {activeTabId === tab.id ? (
-                                    <input
-                                        value={tab.label}
-                                        onChange={(e) => updateTabLabel(tab.id, e.target.value)}
-                                        onClick={(e) => e.stopPropagation()}
-                                        className="form-control form-control-sm py-0 px-1 border-0 bg-transparent fw-bold text-primary"
-                                        style={{ width: '100px' }}
-                                    />
-                                ) : (
-                                    <span className="small">{tab.label}</span>
-                                )}
-                                <button onClick={(e) => { e.stopPropagation(); removeTab(tab.id); }} className="btn btn-link p-0 text-muted hover-text-danger"><X size={12} /></button>
-                            </div>
-                        ))}
-                        <button onClick={addTab} className="btn btn-sm btn-link text-decoration-none d-flex align-items-center gap-1 mb-1"><Plus size={14} /> Add Tab</button>
+                {/* Main Preview / Editor Area */}
+                <div className="flex-grow-1 d-flex flex-column bg-light overflow-hidden">
+                    {/* Tabs Navigation */}
+                    <div className="p-2 border-bottom bg-white d-flex gap-2 align-items-center overflow-x-auto">
+                        <ul className="nav nav-tabs flex-nowrap border-bottom-0">
+                            {currentLayout.tabs.map(tab => (
+                                <li className="nav-item" key={tab.id}>
+                                    <div className={`nav-link d-flex align-items-center gap-2 ${activeTabId === tab.id ? 'active' : ''}`} style={{ cursor: 'pointer' }} onClick={() => setActiveTabId(tab.id)}>
+                                        <input
+                                            value={tab.label}
+                                            onChange={(e) => updateTabLabel(tab.id, e.target.value)}
+                                            className="bg-transparent border-0 p-0 small fw-medium text-dark w-auto"
+                                            style={{ outline: 'none', width: '80px' }}
+                                        />
+                                        <button onClick={(e) => { e.stopPropagation(); removeTab(tab.id); }} className="btn btn-link p-0 text-muted hover-danger opacity-50 hover-opacity-100" style={{ lineHeight: 1 }}><X size={12} /></button>
+                                    </div>
+                                </li>
+                            ))}
+                        </ul>
+                        <button onClick={addTab} className="btn btn-sm btn-light rounded-circle p-1 ms-2"><Plus size={16} /></button>
                     </div>
 
                     {/* Active Tab Content (Sections) */}
-                    <div className="flex-grow-1 overflow-auto p-4 bg-light">
+                    <div className="flex-grow-1 overflow-y-auto p-4">
                         {currentTab ? (
-                            <div className="d-grid gap-4" style={{ maxWidth: '800px', margin: '0 auto' }}>
-                                {currentTab.sections.map((section, sIndex) => (
-                                    <div key={section.id} className="card shadow-sm border-0">
-                                        <div className="card-header bg-white py-2 d-flex justify-content-between align-items-center">
-                                            <div className="d-flex align-items-center gap-2">
-                                                <GripVertical size={16} className="text-muted cursor-move" />
-                                                <input
-                                                    value={section.title}
-                                                    onChange={(e) => updateSection(currentTab.id, section.id, { title: e.target.value })}
-                                                    className="form-control form-control-sm border-0 fw-bold px-1"
-                                                />
-                                            </div>
-                                            <div className="d-flex align-items-center gap-1">
-                                                <button onClick={() => moveSection(currentTab.id, sIndex, 'up')} disabled={sIndex === 0} className="btn btn-sm btn-light p-1"><ArrowUp size={14} /></button>
-                                                <button onClick={() => moveSection(currentTab.id, sIndex, 'down')} disabled={sIndex === currentTab.sections.length - 1} className="btn btn-sm btn-light p-1"><ArrowDown size={14} /></button>
-                                                <div className="vr mx-1"></div>
-                                                <div className="btn-group btn-group-sm">
-                                                    <button
-                                                        onClick={() => updateSection(currentTab.id, section.id, { columns: 1 })}
-                                                        className={`btn btn-outline-secondary ${section.columns === 1 ? 'active' : ''}`} title="1 Column"
-                                                    ><LayoutGrid size={14} /></button>
-                                                    <button
-                                                        onClick={() => updateSection(currentTab.id, section.id, { columns: 2 })}
-                                                        className={`btn btn-outline-secondary ${section.columns === 2 ? 'active' : ''}`} title="2 Columns"
-                                                    ><Columns size={14} /></button>
+                            <div className="d-flex flex-column gap-4 mx-auto" style={{ maxWidth: '900px' }}>
+                                {currentTab.sections.map((section, index) => (
+                                    <div
+                                        key={section.id}
+                                        onDragOver={handleDragOver}
+                                        onDrop={(e) => handleDrop(e, section.id)}
+                                        className={`card ${draggedField ? 'border-dashed border-primary' : 'border'} transition-colors`}
+                                    >
+                                        <div className="card-body p-3">
+                                            {/* Section Header */}
+                                            <div className="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <LayoutGrid size={16} className="text-primary" />
+                                                    <input
+                                                        value={section.title}
+                                                        onChange={(e) => updateSection(currentTab.id, section.id, { title: e.target.value })}
+                                                        className="form-control form-control-sm border-0 fw-semibold text-dark shadow-none p-0"
+                                                        placeholder="Section Title"
+                                                    />
                                                 </div>
-                                                <button onClick={() => removeSection(currentTab.id, section.id)} className="btn btn-sm btn-light text-danger ms-2"><Trash2 size={14} /></button>
-                                            </div>
-                                        </div>
-                                        <div
-                                            className="card-body bg-light-subtle min-h-100"
-                                            onDragOver={handleDragOver}
-                                            onDrop={(e) => handleDrop(e, section.id)}
-                                            style={{ minHeight: '100px' }}
-                                        >
-                                            {section.fields.length === 0 ? (
-                                                <div className="text-center text-muted border border-dashed rounded py-4 small">
-                                                    Drag fields here
+                                                <div className="d-flex align-items-center gap-2">
+                                                    <div className="d-flex align-items-center bg-light rounded px-2 py-1 border">
+                                                        <Columns size={14} className="text-muted me-1" />
+                                                        <select
+                                                            value={section.columns}
+                                                            onChange={(e) => updateSection(currentTab.id, section.id, { columns: parseInt(e.target.value) })}
+                                                            className="form-select form-select-sm border-0 bg-transparent py-0 shadow-none text-muted"
+                                                            style={{ width: 'auto', fontSize: '0.75rem' }}
+                                                        >
+                                                            <option value={1}>1 Col</option>
+                                                            <option value={2}>2 Cols</option>
+                                                            <option value={3}>3 Cols</option>
+                                                            <option value={4}>4 Cols</option>
+                                                        </select>
+                                                    </div>
+                                                    <div className="btn-group btn-group-sm">
+                                                        <button onClick={() => moveSection(currentTab.id, index, 'up')} disabled={index === 0} className="btn btn-light border"><ArrowUp size={14} /></button>
+                                                        <button onClick={() => moveSection(currentTab.id, index, 'down')} disabled={index === currentTab.sections.length - 1} className="btn btn-light border"><ArrowDown size={14} /></button>
+                                                    </div>
+                                                    <button onClick={() => removeSection(currentTab.id, section.id)} className="btn btn-sm btn-light text-danger border hover-bg-danger-subtle"><Trash2 size={14} /></button>
                                                 </div>
-                                            ) : (
-                                                <div className="row g-2">
-                                                    {section.fields.map(field => (
-                                                        <div key={field} className={`col-${12 / (section.columns || 1)}`}>
-                                                            <div
-                                                                draggable
-                                                                onDragStart={(e) => handleDragStart(e, field, section.id)}
-                                                                onDragEnd={handleDragEnd}
-                                                                className="d-flex align-items-center justify-content-between p-2 bg-white border rounded shadow-sm cursor-move"
-                                                            >
-                                                                <span className="small fw-medium text-dark">{field}</span>
-                                                                <button onClick={() => removeField(currentTab.id, section.id, field)} className="btn btn-link p-0 text-muted hover-text-danger"><X size={12} /></button>
+                                            </div>
+
+                                            {/* Grid Content */}
+                                            <div className="row g-3">
+                                                {section.fields.map(field => (
+                                                    <div
+                                                        key={field}
+                                                        className={`col-${12 / section.columns} col-md-${12 / section.columns}`}
+                                                        draggable
+                                                        onDragStart={(e) => handleDragStart(e, field, section.id)}
+                                                        onDragEnd={handleDragEnd}
+                                                    >
+                                                        <div className="d-flex justify-content-between align-items-center p-2 bg-light border rounded group" style={{ cursor: 'grab' }}>
+                                                            <div className="d-flex align-items-center gap-2 overflow-hidden">
+                                                                <GripVertical size={14} className="text-muted flex-shrink-0" />
+                                                                <span className="small fw-medium text-dark font-monospace text-truncate">{field}</span>
                                                             </div>
+                                                            <button onClick={() => removeField(currentTab.id, section.id, field)} className="btn btn-link p-0 text-muted hover-text-danger"><X size={12} /></button>
                                                         </div>
-                                                    ))}
-                                                </div>
-                                            )}
+                                                    </div>
+                                                ))}
+                                                {section.fields.length === 0 && (
+                                                    <div className="col-12">
+                                                        <div className="text-center p-4 border-2 border-dashed rounded bg-light text-muted small">
+                                                            Drop fields here
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
-                                <button onClick={() => addSection(currentTab.id)} className="btn btn-outline-dashed border-2 py-3 fw-bold text-muted w-100 d-flex align-items-center justify-content-center gap-2 hover-bg-light">
-                                    <Plus size={18} /> Add Section
+
+                                <button onClick={() => addSection(currentTab.id)} className="btn btn-outline-secondary border-dashed w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+                                    <Plus size={16} /> Add Section
                                 </button>
                             </div>
                         ) : (
-                            <div className="text-center text-muted py-5">Select or create a tab to edit layout</div>
+                            <div className="h-100 d-flex align-items-center justify-content-center text-muted">Select or add a tab to edit layout</div>
                         )}
                     </div>
                 </div>

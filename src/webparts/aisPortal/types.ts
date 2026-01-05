@@ -1,3 +1,6 @@
+
+import React from 'react';
+
 export type UserRole = 'admin' | 'user';
 
 export interface Vendor {
@@ -10,12 +13,22 @@ export interface Vendor {
   notes?: string;
 }
 
+export interface Site {
+  id: string;
+  name: string;
+}
+
+export interface Department {
+  id: string;
+  name: string;
+}
+
 export interface AssignmentHistory {
   id: string;
   assetName: string;
   assetId: string;
   date: string;
-  type: 'Assigned' | 'Returned' | 'Lost' | 'Reassigned' | 'Usage Update';
+  type: 'Assigned' | 'Returned' | 'Lost' | 'Reassigned' | 'Usage Update' | 'Maintenance';
   notes?: string;
   assignedTo?: string; // Name of user assigned to
   assignedFrom?: string; // Name of previous user
@@ -34,7 +47,7 @@ export interface User {
   department: string;
   organization: string;
   dateOfJoining: string;
-  dateOfExit: string | null;
+  dateOfExit?: string;
   businessPhone: string;
   mobileNo: string;
   nonPersonalEmail?: string;
@@ -63,6 +76,7 @@ export interface User {
   typeOfContact: string[];
   notes?: string;
   suffix?: string;
+  spId?: number | string;
   platformAccounts?: PlatformAccount[];
   history?: AssignmentHistory[];
 }
@@ -85,9 +99,10 @@ export interface SoftwareProfile {
   attachments?: { name: string; url: string }[];
   createdDate: string;
   lastModifiedDate: string;
-  responsibleUser?: User;
+  responsibleUser: User;
   variants: LicenseVariant[];
   assignmentModel?: 'Single' | 'Multiple';
+  totalCount?: number;
 }
 
 // Defines license tiers under a Software Profile
@@ -116,6 +131,7 @@ export interface HardwareProduct {
   lastModifiedDate: string;
   description?: string;
   assignmentModel?: 'Single' | 'Multiple';
+  totalCount?: number;
 }
 
 export type AssetFamily = SoftwareProfile | HardwareProduct;
@@ -134,6 +150,7 @@ export interface Asset {
   createdBy: string;
   modifiedBy: string;
   lastAuditDate?: string;
+  renewalDate?: string;
   maintenanceHistory?: { date: string; notes: string }[];
   assignmentHistory?: AssignmentHistory[];
   activeUsers?: User[];
@@ -142,7 +159,7 @@ export interface Asset {
   assetType: AssetType;
   variantType?: string;
   licenseKey?: string;
-  renewalDate?: string;
+  expiryDate?: string;
   assignedUsers?: User[];
   email?: string;
   complianceStatus?: ComplianceStatus;
@@ -152,13 +169,34 @@ export interface Asset {
   macAddress?: string;
   ipAddress?: string;
   warrantyExpiryDate?: string;
-  assignedUser?: User | null;
+  assignedUser?: User;
   location?: string;
   condition?: HardwareCondition;
   configuration?: string;
   os?: string;
   modelNumber?: string;
   manufacturer?: string;
+
+  // New fields for SP integration
+  topic?: string | string[];
+  country?: string;
+  endDate?: string;
+  startDate?: string;
+  geographicalArea?: string;
+  projectType?: string;
+  totalLicenses?: number;
+  usedLicenses?: number;
+  manufacturerVendor?: string;
+  assetValue?: number;
+  configurationDetails?: string;
+  softwareName?: string;
+  numberOfLicenses?: number;
+  licenseOwner?: string;
+  emailType?: string;
+  requestHistory?: string;
+  privacySettings?: string;
+  licenseType?: string;
+  assetRepo?: { Id: string | number; Title: string };
 }
 
 export enum AssetStatus {
@@ -268,7 +306,7 @@ export interface Task {
   id: string;
   requestId: string;
   title: string;
-  assignedTo: User | null;
+  assignedTo: User | undefined;
   status: TaskStatus;
   priority: TaskPriority;
   dueDate: string;
@@ -330,4 +368,10 @@ export interface Config {
   idSeparator: string;
   assetTypes: AssetTypeMetadata[];
   modalLayouts: ModalConfig;
+}
+
+export interface SmartMetadataItem {
+  Title: string;
+  TaxType: string;
+  Configurations: string;
 }

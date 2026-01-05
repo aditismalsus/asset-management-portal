@@ -8,27 +8,30 @@ import {
 import { BaseClientSideWebPart } from '@microsoft/sp-webpart-base';
 import { IReadonlyTheme } from '@microsoft/sp-component-base';
 
-import * as strings from 'AssetManagementPortalWebPartStrings';
-import App from './App';
+import * as strings from 'AisPortalWebPartStrings';
+import AisPortal from './AisPortal';
+import { IAisPortalProps } from './IAisPortalProps';
 
-export interface IAssetManagementPortalWebPartProps {
+export interface IAisPortalWebPartProps {
   description: string;
 }
 
-export default class AssetManagementPortalWebPart extends BaseClientSideWebPart<IAssetManagementPortalWebPartProps> {
+export default class AisPortalWebPart extends BaseClientSideWebPart<IAisPortalWebPartProps> {
 
   private _isDarkTheme: boolean = false;
   private _environmentMessage: string = '';
 
   public render(): void {
-    const element: React.ReactElement = React.createElement(
-      App,
+    const element: React.ReactElement<IAisPortalProps> = React.createElement(
+      AisPortal,
       {
         description: this.properties.description,
         isDarkTheme: this._isDarkTheme,
         environmentMessage: this._environmentMessage,
         hasTeamsContext: !!this.context.sdks.microsoftTeams,
-        userDisplayName: this.context.pageContext.user.displayName
+        userDisplayName: this.context.pageContext.user.displayName,
+        context: this.context,
+
       }
     );
 

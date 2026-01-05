@@ -1,4 +1,4 @@
-declare interface IAssetManagementPortalWebPartStrings {
+declare interface IAisPortalWebPartStrings {
   PropertyPaneDescription: string;
   BasicGroupName: string;
   DescriptionFieldLabel: string;
@@ -13,7 +13,7 @@ declare interface IAssetManagementPortalWebPartStrings {
   UnknownEnvironment: string;
 }
 
-declare module 'AssetManagementPortalWebPartStrings' {
-  const strings: IAssetManagementPortalWebPartStrings;
+declare module 'AisPortalWebPartStrings' {
+  const strings: IAisPortalWebPartStrings;
   export = strings;
 }
